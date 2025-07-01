@@ -44,3 +44,5 @@ calculates relative concentration for the slide with cobs fitting before and aft
 makes intensity corrections based on the spatial covariance of deviation from the response curve <br/>
 each antigen/antibody slide is corrected for protein covariance <br/>
 the final protein corrected results are put out as multipliers (transformed back from the logarithmic space) <br/>
+
+Progress can be tracked on the R console output. When done the windows can simply be closed.
