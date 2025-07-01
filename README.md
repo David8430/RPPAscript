@@ -1,7 +1,7 @@
 # RPPAscript
 
 A script in R that uses the core of the RPPASPACE package, but has been modified to accept slide input with sample/dilution replicates.
-The script also uses normalisation with general additive models for covariance with spot spacial location and sample protein concentration (determined on a separate slide). Based on the publication of (but may not be exatly the same as) Leanne de Koning et al. 2012. <br/>
+The script also uses normalisation with general additive models for covariance with spot spacial location and sample protein concentration (determined on a separate slide). Based on the publication of (but may not be exatly the same as) Sylvie Troncale et al. 2012. <br/>
 The script has very little error handling built into it, so reqires proper input.
 
 The app can be run by typing in the R console: <br/>
