@@ -1,12 +1,12 @@
 
 ##Wrap the processing into a function for input
-runMainProcess = function(inputDirectory, doInvert) {
+runMainProcess = function(inputDirectory, doInvert, doNorm) {
 
   ##Project folder input from UI
   project_root = file.path(inputDirectory)
   #protein_file = "FCF"
 
-  antigen_list = list.files(path = file.path(project_root, "in"), pattern = "*.csv", full.names = TRUE)
+  antigen_list = list.files(path = file.path(project_root, "in"), pattern = "*.xlsx", full.names = TRUE)
   antigen_list = tools::file_path_sans_ext(antigen_list)
 
   ##Processing the slide into RPPASPACE input
@@ -45,17 +45,20 @@ runMainProcess = function(inputDirectory, doInvert) {
                            warnLevel=-1)
 
   ##run quantification for all slides
+  antigen_list = checkSlidePresent(antigen_list)
+  
   mapply(processing, antigen_list, MoreArgs = list(setting_params = fitparams), SIMPLIFY = FALSE)
+
+  if (doNorm) {
+    #run protein normalisation for all slides
+    print("===========================================================")
+    print(paste("Starting protein normalisation for results in ", project_root))
   
-  
-  #run protein normalisation for all slides
-  print("===========================================================")
-  print(paste("Starting protein normalisation for results in ", project_root))
-  
-  proteinNormTable = read.table(file.path(outdir, "FCF.txt"))
-  antigen_list = antigen_list[antigen_list != file.path(project_root, "in", "FCF")]
-  
-  mapply(proteinCorrection, antigen_list, MoreArgs = list(proteinStandard = proteinNormTable))
+    proteinNormTable = read.table(file.path(outdir, "FCF.txt"))
+    antigen_list = antigen_list[antigen_list != file.path(project_root, "in", "FCF")]
+    
+    mapply(proteinCorrection, antigen_list, MoreArgs = list(proteinStandard = proteinNormTable))
+  }
 }
 
 #need to create QA plots and report possibly
