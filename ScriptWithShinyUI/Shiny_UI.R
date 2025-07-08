@@ -6,6 +6,7 @@ library(RPPASPACE)
 library(mgcv)
 library(dplyr)
 library(tibble)
+library(readxl)
 
 source(file.path("R", "customRPPASPACEfunctions.R"))
 source(file.path("R", "PostFittingAdj.R"))
@@ -25,7 +26,10 @@ UI_element = fluidPage(
                    "Initialise processing"),
       checkboxInput("doFlip",
                     "Flip the plate the other way around?",
-                    value = TRUE)
+                    value = TRUE),
+      checkboxInput("protNorm",
+                    "Normalise series to the respective FCF slide.",
+                    value = FALSE)
       ),
     mainPanel(
       textOutput("textPanel")
@@ -41,6 +45,7 @@ server_element = function(input, output, session) {
     #take input
     txt = input$ProjDir
     booleanFlip = input$doFlip
+    booleanNorm = input$protNorm
     
     #prevent multiclick
     if (progressTracker$is_running) return()
@@ -48,12 +53,13 @@ server_element = function(input, output, session) {
     #check valid input
     if (!dir.exists(file.path(txt))) return()
     if (is.null(booleanFlip)) return()
+    if (is.null(booleanNorm)) return()
     
     #set
     progressTracker$is_running = TRUE
 
     #run
-    tryCatch({runMainProcess(txt, booleanFlip)},
+    tryCatch({runMainProcess(txt, booleanFlip, booleanNorm)},
              error=function(e) {
               message(conditionMessage(e))
               print(paste("Error in slide ", index, " ", antibody))
