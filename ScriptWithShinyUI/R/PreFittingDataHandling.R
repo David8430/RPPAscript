@@ -1,5 +1,3 @@
-
-
 #sample identifier and dilution change due to inverse plate insertion (central symmetry)
 plate_inverter = function(df) {
   plate_specific_info = c("Lysate.code", "Dilution.ratio")
@@ -123,3 +121,14 @@ convert_table = function(df,
   return(start_index)
 }
 
+checkSlidePresent = function(antigenIDs) {
+  folder_path = file.path(dirname(dirname(antigenIDs)), "txt")
+  file_names = paste(basename(antigenIDs), "txt", sep = ".")
+  file_paths = file.path(folder_path, file_names)
+  
+  exists = file.exists(file_paths)
+  
+  valid_files = antigenIDs[exists]
+  
+  return(valid_files)
+}
