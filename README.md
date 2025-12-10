@@ -35,7 +35,7 @@ The rest of the folders will be created by the script.
 For the directory input the ProjectFolder path needs to be given (example c:\user\paul\Desktop\20210527)
 
 The script can only handle a single series of data, meaing any number of UNIQUE antigen/antibody slides and ONE respective FCF protein slide.
-Only samples with a matching identifier in the FCF slide AND properly evaluable on both will be returned.
+With protein normalisation, only samples with a matching identifier in the FCF slide AND that are properly evaluable on both slides will be returned.
 
 The script does the following: <br/>
 filters out all spots that are less than the 99 percentile of the blanks (dots without dilution values) <br/>
