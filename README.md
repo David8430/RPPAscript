@@ -24,17 +24,17 @@ AppFolder/R/PostFittingAdj.R <br/>
 AppFolder/R/PostFittingOutput.R <br/>
 AppFolder/R/PreFittingDataHandling.R <br/>
 
-The slide input information also has to be in te proper structure: (The ProjectFolder is a flexible input, can be called anything else, for example the printing date.) <br/>
-A folder called "in" needs to be created within the project folder. This will contain all the input slide intensity quantifications. <br/>
-ProjectFolder/in/FCF.csv <br/>
-ProjectFolder/in/Akt.csv <br/>
-ProjectFolder/in/FGFR2.csv <br/>
+The slide input information also has to be in the proper structure: (The ProjectFolder is a flexible input, can be called anything else, for example the printing date.) <br/>
+A folder called "in" needs to be created within the project folder. This folder will contain all the input slide intensity quantifications. The input files should be named by the antigen or FCF. <br/>
+ProjectFolder/in/FCF.xlsx <br/>
+ProjectFolder/in/Akt.xlsx <br/>
+ProjectFolder/in/FGFR2.xlsx <br/>
 etc. <br/>
 The rest of the folders will be created by the script.
 
 For the directory input the ProjectFolder path needs to be given (example c:\user\paul\Desktop\20210527)
 
-The script can only handle a single series of data, meaing any number of unique antigen/antibody slides and ONE respective FCF protein slide.
+The script can only handle a single series of data, meaing any number of UNIQUE antigen/antibody slides and ONE respective FCF protein slide.
 Only samples with a matching identifier in the FCF slide AND properly evaluable on both will be returned.
 
 The script does the following: <br/>
