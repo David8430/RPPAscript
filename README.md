@@ -24,7 +24,8 @@ AppFolder/R/PostFittingAdj.R <br/>
 AppFolder/R/PostFittingOutput.R <br/>
 AppFolder/R/PreFittingDataHandling.R <br/>
 
-The slide input information also has to be in te proper structure: (The ProjectFolder is a flexible input, can be called anything else.) <br/>
+The slide input information also has to be in te proper structure: (The ProjectFolder is a flexible input, can be called anything else, for example the printing date.) <br/>
+A folder called "in" needs to be created within the project folder. This will contain all the input slide intensity quantifications. <br/>
 ProjectFolder/in/FCF.csv <br/>
 ProjectFolder/in/Akt.csv <br/>
 ProjectFolder/in/FGFR2.csv <br/>
