@@ -14,6 +14,7 @@ mgcv <br/>
 dplyr <br/>
 tibble <br/>
 shiny <br/>
+tidyr <br/>
 
 The scipts need to be in the proper structure: <br/>
 AppFolder/Shiny_UI.R <br/>
@@ -23,6 +24,7 @@ AppFolder/R/main.R <br/>
 AppFolder/R/PostFittingAdj.R <br/>
 AppFolder/R/PostFittingOutput.R <br/>
 AppFolder/R/PreFittingDataHandling.R <br/>
+AppFolder/R/Visualisation.R <br/>
 
 The slide input information also has to be in the proper structure: (The ProjectFolder is a flexible input, can be called anything else, for example the printing date.) <br/>
 A folder called "in" needs to be created within the project folder. This folder will contain all the input slide intensity quantifications. The input files should be named by the antigen or FCF. <br/>
@@ -43,6 +45,7 @@ discards all samples that have less than 3 remaining dilutions <br/>
 optionally flips the source well plate and associated samples the other way around <br/>
 calculates relative concentration for the slide with cobs fitting before and after spatial correction. <br/>
 makes intensity corrections based on the spatial covariance of deviation from the response curve <br/>
+removes outlier points while preserving data integrity<br/>
 each antigen/antibody slide is corrected for protein covariance <br/>
 the final protein corrected results are put out as multipliers (transformed back from the logarithmic space) <br/>
 
