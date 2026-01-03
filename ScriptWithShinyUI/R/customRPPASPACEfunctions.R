@@ -283,6 +283,7 @@ customRPPAFitFromParams = function(rppa,
   result
 }
 environment(customRPPAFitFromParams) <- asNamespace('RPPASPACE')
+
 #RPPA class variable creation that allows multiple replicates for every dilution
 customRPPA <- function(file,
                        path=".",

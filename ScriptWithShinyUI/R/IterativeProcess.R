@@ -41,7 +41,7 @@ preprocessing = function(slide_file, flipBox) {
   NA_data = select(fluor_read[[3]], Lysate.code) %>% distinct(Lysate.code)
 
   if (nrow(curve_fitting_data) == 0) {
-    print(paste(antigen_ID, "has quality error and will be excluded."))
+    print(paste(antigen_ID, "has quality error (no fully intact dilution series) and will be excluded."))
     return()
   } else if (nrow(calculateable_data) == 0) {
     start_i = c(1, 1) #first is the order for spots, second is order for unique samples
@@ -60,7 +60,7 @@ preprocessing = function(slide_file, flipBox) {
 }
 
 #runs RPPASPACE algorithm
-processing = function(slide_file, setting_params) {
+processing = function(slide_file, setting_params, spatial_flag, outlier_flag) {
   antigen = basename(slide_file)
   slideFilename = paste(antigen, "txt", sep = ".")
   
@@ -89,76 +89,91 @@ processing = function(slide_file, setting_params) {
   if (file.exists(file.path(file.path(dirname(dirname(slide_file)), "cal"), slideFilename))) {
     #calculate for partially available data
     calc_frame = read.table(file.path(file.path(dirname(dirname(slide_file)), "cal"), slideFilename))
-    concentration_raw2 = only_calculate(quantification_results, calc_frame)
+    calculation_results = only_calculate(quantification_results, calc_frame)
+    two_datasources = TRUE
+  } else {
+    two_datasources = FALSE
+  }
+  
+  #run spatial correction
+  if (spatial_flag) {
+    if (two_datasources) {
+      spatial_corr_data = spatial_correction(quantification_results, calculation_results)
     
-    #run spatial correction
-    spatial_corr_data = spatial_correction(quantification_results, concentration_raw2)
+      #revise data based on correction
+      data_file@data = spatial_corr_data[[1]]
+      calc_frame = spatial_corr_data[[2]]
+      quantification_results@rppa@data = data_file@data
+      calculation_results@rppa@data = calc_frame
+    } else {
+      spatial_corr_data = spatial_correction(quantification_results, NULL)
+      
+      #revise data based on correction
+      data_file@data = spatial_corr_data[[1]]
+      quantification_results@rppa@data = data_file@data
+    }
+  }
+  
+  #run outlier filtering
+  if (outlier_flag) {
+    if (two_datasources) {
+      out_rem_data = deviation_sorting(quantification_results, calculation_results)
     
-    #revise data based on correction
-    data_file@data = spatial_corr_data[[1]]
-    calc_frame = spatial_corr_data[[2]]
-    
+      data_file@data = out_rem_data[[1]]
+      calc_frame = out_rem_data[[2]]
+      quantification_results@rppa@data = data_file@data
+      calculation_results@rppa@data = calc_frame
+    } else {
+      out_rem_data = deviation_sorting(quantification_results, NULL)
+      
+      data_file@data = out_rem_data[[1]]
+      quantification_results@rppa@data = data_file@data
+    }
+  }
+  
+  if (spatial_flag | outlier_flag) {
     #run quantification again with revised values
     quantification_results = tryCatch({customRPPAFitFromParams(data_file, setting_params)},
                                       error=function(e) {
-                                        message(conditionMessage(e))
-                                        print(paste("Error in slide ", index, " ", antibody))
-                                        NULL
-                                      })
-    
-    #calculate partially available data again
-    concentration_raw2 = only_calculate(quantification_results, calc_frame)
-    
-    #extract the concentration results
-    concentration_raw = quantification_results@concentrations
-    concentration_raw = data.frame(concentration_raw)
-    concentration_raw = dplyr::rename(concentration_raw, x = concentration_raw)
-    
-    concentration_raw3 = concentration_raw2@concentrations
+                                      message(conditionMessage(e))
+                                      print(paste("Error in slide ", index, " ", antibody))
+                                      NULL
+                                    })
+    if (two_datasources) {
+      #calculate partially available data again
+      calculation_results = only_calculate(quantification_results, calc_frame)
+    }
+  }
+  
+  #extract the concentration results
+  concentration_raw = quantification_results@concentrations
+  concentration_raw = data.frame(concentration_raw)
+  concentration_raw = dplyr::rename(concentration_raw, x = concentration_raw)
+  
+  if (two_datasources) {
+    concentration_raw3 = calculation_results@concentrations
     concentration_raw3 = data.frame(concentration_raw3)
     concentration_raw3 = dplyr::rename(concentration_raw3, x = concentration_raw3)
     
     concentration_raw = dplyr::bind_rows(concentration_raw, concentration_raw3)
-    
-    write.table(pull_data(dirname(dirname(slide_file)),
-                          antigen,
-                          concentration_raw),
-                file=file.path(file.path(dirname(dirname(slide_file)),
-                                         "out"),
-                               slideFilename),
-                quote = FALSE,
-                sep = "\t")
-    
-    print(paste("Quantification for", antigen, "done!"))
-  } else {
-    #run spatial correction
-    spatial_corr_data = spatial_correction_single(quantification_results)
-    
-    #revise data based on correction
-    data_file@data = spatial_corr_data
-    
-    #run quantification again with revised values
-    quantification_results = tryCatch({customRPPAFitFromParams(data_file, setting_params)},
-                                      error=function(e) {
-                                        message(conditionMessage(e))
-                                        print(paste("Error in slide ", index, " ", antibody))
-                                        NULL
-                                      })
-    
-    #extract the concentration results
-    concentration_raw = quantification_results@concentrations
-    concentration_raw = data.frame(concentration_raw)
-    concentration_raw = dplyr::rename(concentration_raw, x = concentration_raw)
-    
-    write.table(pull_data(dirname(dirname(slide_file)),
-                          antigen,
-                          concentration_raw),
-                file=file.path(file.path(dirname(dirname(slide_file)),
-                                         "out"),
-                               slideFilename),
-                quote = FALSE,
-                sep = "\t")
-    
-    print(paste("Quantification for", antigen, "done!"))
   }
+  
+  write.table(pull_data(dirname(dirname(slide_file)),
+                        antigen,
+                        concentration_raw),
+              file=file.path(file.path(dirname(dirname(slide_file)),
+                                       "out"),
+                             slideFilename),
+              quote = FALSE,
+              sep = "\t")
+  
+  print(paste("Quantification for", antigen, "done!"))
+  
+  if (two_datasources) {
+    QC_graph_visual(quantification_results, calculation_results, antigen, dirname(dirname(slide_file)))
+  } else {
+    QC_graph_visual(quantification_results, NULL, antigen, dirname(dirname(slide_file)))
+  }
+  
+  print(paste(antigen, " results illustrated!"))
 }

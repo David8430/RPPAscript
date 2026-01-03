@@ -1,3 +1,5 @@
+
+
 #sample identifier and dilution change due to inverse plate insertion (central symmetry)
 plate_inverter = function(df) {
   plate_specific_info = c("Lysate.code", "Dilution.ratio")
@@ -78,7 +80,7 @@ convert_table = function(df,
   d1 = d1 %>% 
     mutate(Main.Row =  1) %>%
     mutate(Main.Col =  1) %>%
-    mutate(Sub.Row = (Block %/% 4) * 19 + Row) %>%
+    mutate(Sub.Row = ((Block - 1) %/% 4) * 19 + Row) %>%
     mutate(Sub.Col = ((Block + 3) %% 4) * 17 + Column) %>%
     mutate(Spot.Type = "Sample") %>%
     rename(Spot.X.Position = X) %>%

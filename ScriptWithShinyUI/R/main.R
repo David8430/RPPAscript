@@ -1,6 +1,6 @@
 
 ##Wrap the processing into a function for input
-runMainProcess = function(inputDirectory, doInvert, doNorm) {
+runMainProcess = function(inputDirectory, doInvert, doNorm, doSpat, doOutRem) {
 
   ##Project folder input from UI
   project_root = file.path(inputDirectory)
@@ -13,10 +13,19 @@ runMainProcess = function(inputDirectory, doInvert, doNorm) {
   print("===========================================================")
   print(paste("Starting data conversion in ", project_root))
 
-  dir.create(file.path(project_root, "txt"))
-  dir.create(file.path(project_root, "cal"))
-  dir.create(file.path(project_root, "out"))
-
+  if (!dir.exists(file.path(project_root, "txt"))) {
+    dir.create(file.path(project_root, "txt"))
+  }
+  if (!dir.exists(file.path(project_root, "cal"))) {
+    dir.create(file.path(project_root, "cal"))
+  }
+  if (!dir.exists(file.path(project_root, "out"))) {
+    dir.create(file.path(project_root, "out"))
+  }
+  if (!dir.exists(file.path(project_root, "QC"))) {
+    dir.create(file.path(project_root, "QC"))
+  }
+  
   outdir = file.path(project_root, "out")
 
   mapply(preprocessing, antigen_list, MoreArgs = list(flipBox = doInvert), SIMPLIFY = FALSE)
@@ -47,7 +56,12 @@ runMainProcess = function(inputDirectory, doInvert, doNorm) {
   ##run quantification for all slides
   antigen_list = checkSlidePresent(antigen_list)
   
-  mapply(processing, antigen_list, MoreArgs = list(setting_params = fitparams), SIMPLIFY = FALSE)
+  mapply(processing,
+         antigen_list,
+         MoreArgs = list(setting_params = fitparams,
+                         spatial_flag = doSpat,
+                         outlier_flag = doOutRem),
+         SIMPLIFY = FALSE)
 
   if (doNorm) {
     #run protein normalisation for all slides
@@ -60,13 +74,3 @@ runMainProcess = function(inputDirectory, doInvert, doNorm) {
     mapply(proteinCorrection, antigen_list, MoreArgs = list(proteinStandard = proteinNormTable))
   }
 }
-
-#need to create QA plots and report possibly
-#conc_plot = data.frame(concentration_raw)
-#conc_plot = tibble::rownames_to_column(conc_plot)
-#conc_plot = rename(conc_plot, Series.Id = rowname)
-#conc_plot = transform(conc_plot, Series.Id = as.numeric(Series.Id))
-#looking_glass = quantification_results@rppa@data
-#looking_glass = left_join(looking_glass, conc_plot, by = "Series.Id", relationship = "many-to-one")
-#looking_glass = mutate(looking_glass, X_conc = concentration_raw + log((Dilution / 100), base = 2))
-#ggplot(looking_glass, aes(x = X_conc, y = Net.Value)) + geom_point(color = "black", size = 3)
