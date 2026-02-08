@@ -48,6 +48,7 @@ In the "out" folder:<br/>
 - a list of unusable samples<br/>
 - a tab separated table with log2 transformed relative concentrations<br/>
 - a comma separated table with protein normalised relative concentrations<br/>
+
 In the "QC" folder<br/>
 - a histogram of fluorescence values<br/>
 - the fitted response curve<br/>
