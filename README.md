@@ -1,12 +1,14 @@
 # RPPAscript
 
-A script in R that uses the core of the RPPASPACE package, but has been modified to accept slide input with sample/dilution replicates.
-The script also uses normalisation with general additive models for covariance with spot spacial location and sample protein concentration (determined on a separate slide). Based on the publication of (but may not be exatly the same as) Sylvie Troncale et al. 2012. <br/>
+A script in R that uses the core of the RPPASPACE package, but has been modified to accept slide input with sample/dilution replicates in the layout used in our lab.
+The script also uses normalisations with general additive models for covariance with spot spacial location and sample protein concentration (determined on a separate slide). Based on the publication of (but may not be exatly the same as) Sylvie Troncale et al. 2012. <br/>
 The script has very little error handling built into it, so reqires proper input.
 
 The app can be run by typing in the R console: <br/>
 library(shiny) <br/>
 runApp("filepath\\Shiny_UI.R") <br/>
+
+Or using RStudio. <br/>
 
 The following packages are required to be installed including their dependencies: <br/>
 RPPASPACE <br/>
@@ -15,6 +17,8 @@ dplyr <br/>
 tibble <br/>
 shiny <br/>
 tidyr <br/>
+ggplot2 <br/>
+readxl <br/>
 
 The scipts need to be in the proper structure: <br/>
 AppFolder/Shiny_UI.R <br/>
@@ -39,14 +43,25 @@ For the directory input the ProjectFolder path needs to be given (example c:\use
 The script can only handle a single series of data, meaing any number of UNIQUE antigen/antibody slides and ONE respective FCF protein slide.
 With protein normalisation, only samples with a matching identifier in the FCF slide AND that are properly evaluable on both slides will be returned.
 
+The output for each antigen is: <br/>
+In the "out" folder:<br/>
+- a list of unusable samples<br/>
+- a tab separated table with log2 transformed relative concentrations<br/>
+- a comma separated table with protein normalised relative concentrations<br/>
+In the "QC" folder<br/>
+- a histogram of fluorescence values<br/>
+- the fitted response curve<br/>
+- residuals after curve fitting<br/>
+- symmetry of the two halfs<br/>
+- fitter protein correlation curve<br/>
+
 The script does the following: <br/>
 filters out all spots that are less than the 99 percentile of the blanks (dots without dilution values) <br/>
 discards all samples that have less than 3 remaining dilutions <br/>
 optionally flips the source well plate and associated samples the other way around <br/>
 calculates relative concentration for the slide with cobs fitting before and after spatial correction. <br/>
-makes intensity corrections based on the spatial covariance of deviation from the response curve <br/>
+makes intensity corrections based on the spatial covariance of deviation from the respective median<br/>
 removes outlier points while preserving data integrity<br/>
 each antigen/antibody slide is corrected for protein covariance <br/>
-the final protein corrected results are put out as multipliers (transformed back from the logarithmic space) <br/>
 
 Progress can be tracked on the R console output. When done the windows can simply be closed.
