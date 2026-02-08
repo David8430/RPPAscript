@@ -2,6 +2,7 @@
 #library(shiny)
 #runApp("filepath\\Shiny_UI.R")
 
+library(tidyr)
 library(RPPASPACE)
 library(mgcv)
 library(dplyr)
@@ -43,12 +44,14 @@ UI_element = fluidPage(
            -Inversion means swapping the printed sample assignents as if the plate was inserted the
            other way around.<br>
            i.e. A1 <-> P24; A2 <-> P23<br>
-           -Spatial correction means removing relative intensity deviations correlated with the X,Y
-           coordinates, if deviation is similar to deviation from the response curve, but only up to that extent.<br>
+           -Spatial correction means adjusting fluorescence values based on bulk intensity shifts
+           correlated with the physical (X,Y) coordinates.<br>
            -Outliers are defined as:<br>
-           *symmetric pair dot difference of 12000<br>
-           *deviation from response curve greater than 2.5 times the symmetric dot<br>
-           *deviation from response curve greater than 10000")
+           *symmetric pair dot difference >12000<br>
+           NOTE: Requires the slide to have identically printed top and bottom blocks<br>
+           *deviation from response curve greater than 2.5 times the respective pair<br>
+           *deviation from response curve greater than 10000<br>
+           -FCF normalisation will remove any samples lacking either data points.")
       ),
     mainPanel(
       textOutput("textPanel")
