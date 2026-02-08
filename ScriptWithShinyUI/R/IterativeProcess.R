@@ -107,11 +107,12 @@ processing = function(slide_file, setting_params, spatial_flag, outlier_flag) {
       calculation_results@rppa@data = calc_frame
     } else {
       spatial_corr_data = spatial_correction(quantification_results, NULL)
-      
+
       #revise data based on correction
       data_file@data = spatial_corr_data[[1]]
       quantification_results@rppa@data = data_file@data
     }
+    print("Spatial adjustment done.")
   }
   
   #run outlier filtering
@@ -123,12 +124,17 @@ processing = function(slide_file, setting_params, spatial_flag, outlier_flag) {
       calc_frame = out_rem_data[[2]]
       quantification_results@rppa@data = data_file@data
       calculation_results@rppa@data = calc_frame
+      #recreate tracking for remaining data
+      data_file@tracking = RPPASPACE:::createTracking(data_file@data, antigen)
     } else {
       out_rem_data = deviation_sorting(quantification_results, NULL)
       
       data_file@data = out_rem_data[[1]]
       quantification_results@rppa@data = data_file@data
+      #recreate tracking for remaining data
+      data_file@tracking = RPPASPACE:::createTracking(data_file@data, antigen)
     }
+    print("Outliers removed.")
   }
   
   if (spatial_flag | outlier_flag) {

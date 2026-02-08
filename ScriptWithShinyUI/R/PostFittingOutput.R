@@ -28,6 +28,8 @@ proteinCorrection = function(antigenID, proteinStandard) {
   protein_residuals = data.frame(Lysate.code = proteinStandard$Lysate.code, 
                                  logConc = protein_gam$residuals)
   
+  prot_graph(proteinStandard, basename(antigenID), protein_gam, dirname(dirname(antigenID)))
+  
   #convert back from logarithmic scale
   protein_residuals = protein_residuals %>%
     mutate(Rel.conc = 2 ^ logConc) %>%
