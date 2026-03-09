@@ -28,7 +28,9 @@ preprocessing = function(slide_file, flipBox) {
   if (antigen_ID == "FCF") {
     fluor_read = fluor_read %>%
       rename(F785.Mean...B785 = F670.Mean...B670) %>%
-      rename(B785.Mean = B670.Mean)
+      rename(B785 = B670) %>%
+      rename(F785.Total.Intensity = F670.Total.Intensity) %>%
+      rename(F785.Mean = F670.Mean)
   }
 
   if (flipBox) {

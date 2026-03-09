@@ -75,6 +75,7 @@ deviation_sorting = function(quanti_RPPAfit, calc_RPPAfit) {
   response_data = working_data
   response_data$Expected = cobs_fit[, 2]
   response_data = mutate(response_data, Deviation = abs(Net.Value - Expected))
+  Deviation_MAD = median(response_data$Deviation)
   response_top = filter(response_data, Sub.Row < 77) %>%
     select(Sub.Row, Sub.Col, Deviation)
   response_bottom = filter(response_data, Sub.Row > 76) %>%
@@ -82,13 +83,15 @@ deviation_sorting = function(quanti_RPPAfit, calc_RPPAfit) {
     rename(S.Deviation = Deviation)
   
   paired_data = symmetric_pairing(working_data)
-  paired_data = mutate(paired_data, Asymmetry = abs(Net.Value - S.Net.Value) > 12000)
+  #Define threshold at 8 MAD
+  Symmetry_threshold = median(abs(paired_data$Net.Value - paired_data$S.Net.Value)) * 8
+  paired_data = mutate(paired_data, Asymmetry = abs(Net.Value - S.Net.Value) > Symmetry_threshold)
   
   paired_data = left_join(paired_data, response_top, by = c("Sub.Row", "Sub.Col"), keep = FALSE, relationship = "one-to-one")
   paired_data = left_join(paired_data, response_bottom, by = c("S.Sub.Row" = "Sub.Row", "S.Sub.Col" = "Sub.Col"), keep = FALSE, relationship = "one-to-one")
   
-  paired_data = mutate(paired_data, Outlier = (Deviation >= 2.5 * S.Deviation) & (Deviation >= 10000) & (S.Deviation < 5000) & (Asymmetry == TRUE))
-  paired_data = mutate(paired_data, S.Outlier = (S.Deviation >= 2.5 * Deviation) & (S.Deviation >= 10000) & (Deviation < 5000) & (Asymmetry == TRUE))
+  paired_data = mutate(paired_data, Outlier = (Deviation >= 2 * S.Deviation) & (Deviation >= Deviation_MAD * 3) & (Asymmetry == TRUE))
+  paired_data = mutate(paired_data, S.Outlier = (S.Deviation >= 2 * Deviation) & (S.Deviation >= Deviation_MAD * 3) & (Asymmetry == TRUE))
   
   top_table = select(paired_data, Sub.Row, Sub.Col, Outlier)
   bottom_table = select(paired_data, S.Sub.Row, S.Sub.Col, S.Outlier) %>%

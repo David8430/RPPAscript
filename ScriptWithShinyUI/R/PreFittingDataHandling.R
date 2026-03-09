@@ -35,7 +35,9 @@ well_inverter = function(well) {
 filter_low_antibody = function(df) {
   blanks = filter(df, is.na(Dilution.ratio))
   df = filter(df, Foreign.identifier != "BUFFER")
-  blank_cutoff = quantile(blanks$F785.Mean...B785, probs = 0.99)
+  blank_cutoff = mean(blanks$F785.Mean...B785) + sd(blanks$F785.Mean...B785)*2
+  # 2 stdev should give 97.7%
+  # filtering applied to the mean because total fluorescence has way higher variance and results in high data loss
   all_samples = distinct(df, Lysate.code)
   cut_dataframe = filter(df, F785.Mean...B785 > blank_cutoff)
   remaining_samples = distinct(cut_dataframe, Lysate.code, Dilution.ratio) %>%
@@ -72,7 +74,7 @@ convert_table = function(df,
     filter(!is.na(Column)) %>%
     filter(!is.na(Lysate.code)) %>%
     filter(!is.na(F785.Mean...B785)) %>%
-    filter(!is.na(B785.Mean)) %>%
+    filter(!is.na(B785)) %>%
     filter(!is.na(Lysate.code))
   
   ##set up columns
@@ -85,8 +87,8 @@ convert_table = function(df,
     mutate(Spot.Type = "Sample") %>%
     rename(Spot.X.Position = X) %>%
     rename(Spot.Y.Position = Y) %>%
-    rename(Net.Value = F785.Mean...B785) %>%
-    rename(Background.Value = B785.Mean)
+    mutate(Net.Value = (F785.Total.Intensity / F785.Mean) * F785.Mean...B785) %>%
+    mutate(Background.Value = (F785.Total.Intensity / F785.Mean) * B785)
   #order, though it doesn't matter
   d1$Original.Order = seq.int(from = start_index[1], to = start_index[1] - 1 + nrow(d1), by = 1)
   #add series ID and decoder table
