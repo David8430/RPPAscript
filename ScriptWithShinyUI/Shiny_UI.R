@@ -47,10 +47,10 @@ UI_element = fluidPage(
            -Spatial correction means adjusting fluorescence values based on bulk intensity shifts
            correlated with the physical (X,Y) coordinates.<br>
            -Outliers are defined as:<br>
-           *symmetric pair dot difference >12000<br>
+           *symmetric pair dot difference >8*MAD<br>
            NOTE: Requires the slide to have identically printed top and bottom blocks<br>
-           *deviation from response curve greater than 2.5 times the respective pair<br>
-           *deviation from response curve greater than 10000<br>
+           *deviation from response curve greater than 2 times the respective pair<br>
+           *deviation from response curve greater than 3*MAD<br>
            -FCF normalisation will remove any samples lacking either data points.")
       ),
     mainPanel(
