@@ -56,7 +56,7 @@ In the "QC" folder:<br/>
 - the fitted response curve<br/>
 - residuals after curve fitting<br/>
 - symmetry of the two halfs<br/>
-- fitter protein correlation curve<br/>
+- antigen-protein correlation curve<br/>
 
 The script does the following: <br/>
 filters out all spots that have a mean fluorescence less than mean + 2 SD of the blanks (dots without dilution values) <br/>
