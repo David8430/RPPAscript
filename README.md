@@ -43,7 +43,9 @@ For the directory input the ProjectFolder path needs to be given (example c:\use
 The script can only handle a single series of data, meaing any number of UNIQUE antigen/antibody slides and ONE respective FCF protein slide.
 With protein normalisation, only samples with a matching identifier in the FCF slide AND that are properly evaluable on both slides will be returned.
 
-The output for each antigen is: <br/>
+**************************************<br/>
+***The output for each antigen is: ***<br/>
+**************************************<br/>
 In the "out" folder:<br/>
 - a list of unusable samples<br/>
 - a tab separated table with log2 transformed relative concentrations<br/>
@@ -57,7 +59,7 @@ In the "QC" folder:<br/>
 - fitter protein correlation curve<br/>
 
 The script does the following: <br/>
-filters out all spots that are less than the 99 percentile of the blanks (dots without dilution values) <br/>
+filters out all spots that have a mean fluorescence less than mean + 2 SD of the blanks (dots without dilution values) <br/>
 discards all samples that have less than 3 remaining dilutions <br/>
 optionally flips the source well plate and associated samples the other way around <br/>
 calculates relative concentration for the slide with cobs fitting before and after spatial correction. <br/>
