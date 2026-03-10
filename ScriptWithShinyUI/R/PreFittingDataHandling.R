@@ -35,8 +35,8 @@ well_inverter = function(well) {
 filter_low_antibody = function(df) {
   blanks = filter(df, is.na(Dilution.ratio))
   df = filter(df, Foreign.identifier != "BUFFER")
-  blank_cutoff = mean(blanks$F785.Mean...B785) + sd(blanks$F785.Mean...B785)*2
-  # 2 stdev should give 97.7%
+  blank_cutoff = max(mean(blanks$F785.Mean...B785) + sd(blanks$F785.Mean...B785)*2, 0)
+  # 2 stdev should give 97.7% (but at least 0)
   # filtering applied to the mean because total fluorescence has way higher variance and results in high data loss
   all_samples = distinct(df, Lysate.code)
   cut_dataframe = filter(df, F785.Mean...B785 > blank_cutoff)
@@ -78,6 +78,7 @@ convert_table = function(df,
     filter(!is.na(Lysate.code))
   
   ##set up columns
+  #backround is not mathematically correct, but isn't used for evaluation
   #positions
   d1 = d1 %>% 
     mutate(Main.Row =  1) %>%
@@ -89,6 +90,8 @@ convert_table = function(df,
     rename(Spot.Y.Position = Y) %>%
     mutate(Net.Value = (F785.Total.Intensity / F785.Mean) * F785.Mean...B785) %>%
     mutate(Background.Value = (F785.Total.Intensity / F785.Mean) * B785)
+    #mutate(Net.Value = sqrt((F785.Total.Intensity / F785.Mean) * F785.Mean...B785)) %>%
+    #mutate(Background.Value = sqrt((F785.Total.Intensity / F785.Mean) * B785))
   #order, though it doesn't matter
   d1$Original.Order = seq.int(from = start_index[1], to = start_index[1] - 1 + nrow(d1), by = 1)
   #add series ID and decoder table
