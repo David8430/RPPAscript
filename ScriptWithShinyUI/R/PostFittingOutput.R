@@ -21,21 +21,14 @@ proteinCorrection = function(antigenID, proteinStandard) {
                            !is.na(x.x)) %>%
                     filter(!is.na(x.y))
   
-  protein_gam = gam(x.y ~ s(x.x),
-                    data = proteinStandard,
-                    method = "REML")
+  proteinStandard = mutate(proteinStandard, Rel.val = (2 ^ x.y) / (2 ^ x.x))
   
-  protein_residuals = data.frame(Lysate.code = proteinStandard$Lysate.code, 
-                                 logConc = protein_gam$residuals)
-  
-  prot_graph(proteinStandard, basename(antigenID), protein_gam, dirname(dirname(antigenID)))
+  prot_graph(proteinStandard, basename(antigenID), dirname(dirname(antigenID)))
   
   #convert back from logarithmic scale
-  protein_residuals = protein_residuals %>%
-    mutate(Rel.conc = 2 ^ logConc) %>%
-    select(Lysate.code, Rel.conc)
+  proteinStandard = select(proteinStandard, Lysate.code, Rel.val)
   
-  write.csv(protein_residuals, file.path(dirname(dirname(antigenID)),
+  write.csv(proteinStandard, file.path(dirname(dirname(antigenID)),
                                          "out",
                                          paste("ProteinCorrected_", basename(antigenID), ".csv", sep = "")))
   

@@ -165,21 +165,12 @@ residual_graph = function(working_set, working_conc, set_name, set_model, target
   )
 }
 
-prot_graph = function(working_set, set_name, set_model, target_dir) {
-  #simulate model curve
-  pgam_fit_x = seq(from = min(working_set$x.x),
-                   to = max(working_set$x.x),
-                   length.out = 30)
-  pgam_fit_set = data.frame(x.x = pgam_fit_x)
-  pgam_fit_y = predict(set_model, pgam_fit_set)
-  pgam_fit_y = as.vector(pgam_fit_y)
-  pgam_fit_set$x.y = pgam_fit_y
-  
+prot_graph = function(working_set, set_name, target_dir) {
   correlation_curve = ggplot() + 
-    geom_point(data = working_set, aes(x = x.x, y = x.y), color = "black", size = 0.4) + 
-    geom_line(data = pgam_fit_set, aes(x = x.x, y = x.y), color = "green", linewidth = 0.2, alpha = 0.5) +
+    geom_point(data = working_set, aes(x = (2^x.x), y = (2^x.y)), color = "black", size = 0.4) + 
+    geom_abline(intercept = 0, slope = 1, color = "green", linewidth = 0.3, alpha = 0.5) +
     labs(title = paste(set_name, "Protein-Antigen correlation curve"),
-         x = "Relative protein concentration (log2)", y = "Relative antigen concentration (log2)") +
+         x = "Relative protein concentration", y = "Relative antigen concentration") +
     theme_light() +
     theme(text =  element_text(size = 4),
           axis.title = element_text(size = 4),
@@ -189,6 +180,29 @@ prot_graph = function(working_set, set_name, set_model, target_dir) {
   plot_name = paste(set_name, "-FCF_correlation_plot.png", sep = "")
   ggplot2::ggsave(plot_name,
                   plot = correlation_curve,
+                  device = "png",
+                  path = file.path(target_dir, "QC"),
+                  scale = 1,
+                  width = 900,
+                  height = 900,
+                  units = "px",
+                  dpi = 300
+  )
+  
+  correlationresid_curve = ggplot() + 
+    geom_point(data = working_set, aes(x = (2^x.x), y = Rel.val), color = "black", size = 0.4) + 
+    geom_hline(yintercept = 1, linewidth = 0.2) +
+    labs(title = paste(set_name, "Protein normalized value protein bias"),
+         x = "Relative protein concentration", y = "Relative value") +
+    theme_light() +
+    theme(text =  element_text(size = 4),
+          axis.title = element_text(size = 4),
+          axis.text = element_text(size = 4),
+          plot.title = element_text(size = 6))
+  
+  plot_name = paste(set_name, "-doubleFCF_correlation_plot.png", sep = "")
+  ggplot2::ggsave(plot_name,
+                  plot = correlationresid_curve,
                   device = "png",
                   path = file.path(target_dir, "QC"),
                   scale = 1,
