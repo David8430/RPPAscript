@@ -16,7 +16,7 @@ plate_inverter = function(df) {
 }
 
 #well identifier change to the centrally opposite one
-#takes XYY well identifier as a string, X is a capital lettel, Y is a number with 1-2 characters
+#takes XYY well identifier as a string, X is a capital letter, Y is a number with 1-2 characters
 #non-vectorised function, needs to be 'apply'-d
 well_inverter = function(well) { 
   well_letter = substr(well, 1,1)
@@ -50,7 +50,7 @@ filter_low_antibody = function(df) {
   just_enough = distinct(partial_series, Lysate.code, Dilution.ratio) %>%
     group_by(Lysate.code) %>%
     summarise(dilutions = n()) %>%
-    filter(dilutions > 2) %>%
+    filter(dilutions > 1) %>%
     pull(Lysate.code)
   partial_series = subset(partial_series, Lysate.code %in% just_enough)
   unusable_series = subset(all_samples, !(Lysate.code %in% c(remaining_samples, just_enough)))
@@ -78,7 +78,7 @@ convert_table = function(df,
     filter(!is.na(Lysate.code))
   
   ##set up columns
-  #backround is not mathematically correct, but isn't used for evaluation
+  #background is not mathematically correct, but isn't used for evaluation
   #positions
   d1 = d1 %>% 
     mutate(Main.Row =  1) %>%
@@ -88,10 +88,10 @@ convert_table = function(df,
     mutate(Spot.Type = "Sample") %>%
     rename(Spot.X.Position = X) %>%
     rename(Spot.Y.Position = Y) %>%
-    mutate(Net.Value = (F785.Total.Intensity / F785.Mean) * F785.Mean...B785) %>%
-    mutate(Background.Value = (F785.Total.Intensity / F785.Mean) * B785)
-    #mutate(Net.Value = sqrt((F785.Total.Intensity / F785.Mean) * F785.Mean...B785)) %>%
-    #mutate(Background.Value = sqrt((F785.Total.Intensity / F785.Mean) * B785))
+    #mutate(Net.Value = (F785.Total.Intensity / F785.Mean) * F785.Mean...B785) %>%
+    #mutate(Background.Value = (F785.Total.Intensity / F785.Mean) * B785)
+    mutate(Net.Value = sqrt((F785.Total.Intensity / F785.Mean) * pmax(0,F785.Mean...B785))) %>%
+    mutate(Background.Value = sqrt((F785.Total.Intensity / F785.Mean) * pmax(0,B785)))
   #order, though it doesn't matter
   d1$Original.Order = seq.int(from = start_index[1], to = start_index[1] - 1 + nrow(d1), by = 1)
   #add series ID and decoder table
