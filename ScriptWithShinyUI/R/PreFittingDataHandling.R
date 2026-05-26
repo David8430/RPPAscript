@@ -2,7 +2,7 @@
 
 #sample identifier and dilution change due to inverse plate insertion (central symmetry)
 plate_inverter = function(df) {
-  plate_specific_info = c("Lysate.code", "Dilution.ratio")
+  plate_specific_info = c("Lysate.code", "Dilution.ratio", "Foreign.identifier")
   common_identifier = c("Well.plate.barcode", "Well.sign")
   original = df %>%
     select(-all_of(plate_specific_info))
@@ -74,8 +74,7 @@ convert_table = function(df,
     filter(!is.na(Column)) %>%
     filter(!is.na(Lysate.code)) %>%
     filter(!is.na(F785.Mean...B785)) %>%
-    filter(!is.na(B785)) %>%
-    filter(!is.na(Lysate.code))
+    filter(!is.na(B785))
   
   ##set up columns
   #background is not mathematically correct, but isn't used for evaluation
